@@ -1,1 +1,0 @@
-terraform import unco_variable_entry.example sample-warehouse/shared-outputs/EndpointURL

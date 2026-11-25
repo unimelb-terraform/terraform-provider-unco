@@ -44,10 +44,11 @@ resource "unco_variable_entry" "example" {
 
 ## Import
 
-Import is supported using the following syntax:
+Import is supported using an [`import` block](https://developer.hashicorp.com/terraform/language/import):
 
-The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
-
-```shell
-terraform import unco_variable_entry.example sample-warehouse/shared-outputs/EndpointURL
+```terraform
+import {
+  to = unco_variable_entry.example
+  id = "sample-warehouse/shared-outputs/EndpointURL"
+}
 ```
