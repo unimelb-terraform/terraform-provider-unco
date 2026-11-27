@@ -446,7 +446,9 @@ func TestStrictJSONCachePermissionsProviderConfigureAndCRUDEntrypoints(t *testin
 
 	var missingResp provider.ConfigureResponse
 	prov.Configure(ctx, provider.ConfigureRequest{Config: makeConfig(UncoProviderModel{})}, &missingResp)
-	assert.True(t, missingResp.Diagnostics.HasError())
+	require.True(t, missingResp.Diagnostics.HasError())
+	assert.Equal(t, "Missing Unco API URL", missingResp.Diagnostics[0].Summary())
+	assert.Contains(t, missingResp.Diagnostics[0].Detail(), defaultCLIConfigPath())
 
 	var unknownResp provider.ConfigureResponse
 	prov.Configure(ctx, provider.ConfigureRequest{Config: makeConfig(UncoProviderModel{APIURL: types.StringUnknown()})}, &unknownResp)
@@ -509,4 +511,41 @@ func TestStrictJSONCachePermissionsProviderConfigureAndCRUDEntrypoints(t *testin
 	gotStr, isStr := fake.sets["sample-warehouse/s1"].Variables["k1"].AsString()
 	require.True(t, isStr)
 	assert.Equal(t, "v2", gotStr)
+}
+
+func TestDefaultCLIConfigPathAndAcquireUncoTokenErrors(t *testing.T) {
+	ctx := context.Background()
+
+	tmpCfg := t.TempDir()
+	t.Setenv("XDG_CONFIG_HOME", tmpCfg)
+	cfgDir, err := os.UserConfigDir()
+	require.NoError(t, err)
+
+	expectedPath := filepath.Join(cfgDir, "unco", "config.yaml")
+	assert.Equal(t, expectedPath, defaultCLIConfigPath())
+
+	_, err = acquireUncoToken(ctx, "", "00000000-0000-0000-0000-000000000002")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "client_id is required")
+	assert.Contains(t, err.Error(), defaultCLIConfigPath())
+
+	_, err = acquireUncoToken(ctx, "00000000-0000-0000-0000-000000000001", "")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "tenant_id is required")
+	assert.Contains(t, err.Error(), defaultCLIConfigPath())
+
+	t.Setenv("XDG_CONFIG_HOME", "")
+	t.Setenv("HOME", "")
+	t.Setenv("AppData", "")
+	if _, uErr := os.UserConfigDir(); uErr != nil {
+		assert.Equal(t, "<user config dir>/unco/config.yaml", defaultCLIConfigPath())
+		apiURL, clientID, tenantID := loadCLIConfigDefaults()
+		assert.Empty(t, apiURL)
+		assert.Empty(t, clientID)
+		assert.Empty(t, tenantID)
+
+		_, err = acquireUncoToken(ctx, "", "00000000-0000-0000-0000-000000000002")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "<user config dir>/unco/config.yaml")
+	}
 }

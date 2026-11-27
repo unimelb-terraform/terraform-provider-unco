@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -34,9 +35,17 @@ type localCLIConfig struct {
 	} `json:"api"`
 }
 
+func defaultCLIConfigPath() string {
+	cfgDir, err := os.UserConfigDir()
+	if err != nil || cfgDir == "" {
+		return "<user config dir>/unco/config.yaml"
+	}
+	return filepath.Join(cfgDir, "unco", "config.yaml")
+}
+
 func loadCLIConfigDefaults() (apiURL, clientID, tenantID string) {
 	cfgDir, err := os.UserConfigDir()
-	if err != nil {
+	if err != nil || cfgDir == "" {
 		return "", "", ""
 	}
 	raw, err := os.ReadFile(filepath.Join(cfgDir, "unco", "config.yaml"))
@@ -60,15 +69,15 @@ func (p *UncoProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 		MarkdownDescription: "Terraform provider for Unco v2 variable sets and stack actions.",
 		Attributes: map[string]schema.Attribute{
 			"api_url": schema.StringAttribute{
-				MarkdownDescription: "Unco API base URL (overrides UNCO_API_URL and ~/.config/unco/config.yaml).",
+				MarkdownDescription: "Unco API base URL (overrides UNCO_API_URL and the Unco CLI config.yaml in the OS user config directory).",
 				Optional:            true,
 			},
 			"client_id": schema.StringAttribute{
-				MarkdownDescription: "Entra ID client ID for Unco API authentication (overrides UNCO_CLIENT_ID and ~/.config/unco/config.yaml).",
+				MarkdownDescription: "Entra ID client ID for Unco API authentication (overrides UNCO_CLIENT_ID and the Unco CLI config.yaml in the OS user config directory).",
 				Optional:            true,
 			},
 			"tenant_id": schema.StringAttribute{
-				MarkdownDescription: "Entra ID tenant ID for Unco API authentication (overrides UNCO_TENANT_ID and ~/.config/unco/config.yaml).",
+				MarkdownDescription: "Entra ID tenant ID for Unco API authentication (overrides UNCO_TENANT_ID and the Unco CLI config.yaml in the OS user config directory).",
 				Optional:            true,
 			},
 			"token": schema.StringAttribute{
@@ -116,7 +125,7 @@ func (p *UncoProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	if apiURL == "" {
 		resp.Diagnostics.AddError(
 			"Missing Unco API URL",
-			"api_url must be configured in the provider block, via UNCO_API_URL, or in ~/.config/unco/config.yaml",
+			fmt.Sprintf("api_url must be configured in the provider block, via UNCO_API_URL, or in %s", defaultCLIConfigPath()),
 		)
 		return
 	}

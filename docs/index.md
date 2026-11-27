@@ -14,7 +14,7 @@ Terraform provider for Unco v2 variable sets and stack actions.
 ```terraform
 provider "unco" {
   # Optional: falls back to UNCO_API_URL / UNCO_CLIENT_ID / UNCO_TENANT_ID
-  # or ~/.config/unco/config.yaml when omitted.
+  # or the Unco CLI config.yaml in the OS user config directory when omitted.
   api_url   = "https://api.example.invalid"
   client_id = "00000000-0000-0000-0000-000000000001"
   tenant_id = "00000000-0000-0000-0000-000000000002"
@@ -26,7 +26,7 @@ provider "unco" {
 
 ### Optional
 
-- `api_url` (String) Unco API base URL (overrides UNCO_API_URL and ~/.config/unco/config.yaml).
-- `client_id` (String) Entra ID client ID for Unco API authentication (overrides UNCO_CLIENT_ID and ~/.config/unco/config.yaml).
-- `tenant_id` (String) Entra ID tenant ID for Unco API authentication (overrides UNCO_TENANT_ID and ~/.config/unco/config.yaml).
+- `api_url` (String) Unco API base URL (overrides UNCO_API_URL and the Unco CLI config.yaml in the OS user config directory).
+- `client_id` (String) Entra ID client ID for Unco API authentication (overrides UNCO_CLIENT_ID and the Unco CLI config.yaml in the OS user config directory).
+- `tenant_id` (String) Entra ID tenant ID for Unco API authentication (overrides UNCO_TENANT_ID and the Unco CLI config.yaml in the OS user config directory).
 - `token` (String, Sensitive) Optional bearer token for Unco API requests (overrides UNCO_API_TOKEN and MSAL token acquisition).

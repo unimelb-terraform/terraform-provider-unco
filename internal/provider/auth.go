@@ -29,7 +29,7 @@ type msalFileCache struct {
 
 func defaultMSALCacheFile() string {
 	dir, err := os.UserCacheDir()
-	if err != nil {
+	if err != nil || dir == "" {
 		dir = os.TempDir()
 	}
 	return filepath.Join(dir, "unco", "cache.json")
@@ -138,10 +138,10 @@ func readCachedAccessToken(cachePath, clientID, tenantID string, now time.Time) 
 
 func acquireUncoToken(ctx context.Context, clientID, tenantID string) (string, error) {
 	if clientID == "" {
-		return "", errors.New("client_id is required (set in provider block, UNCO_CLIENT_ID, or ~/.config/unco/config.yaml)")
+		return "", fmt.Errorf("client_id is required (set in provider block, UNCO_CLIENT_ID, or %s)", defaultCLIConfigPath())
 	}
 	if tenantID == "" {
-		return "", errors.New("tenant_id is required (set in provider block, UNCO_TENANT_ID, or ~/.config/unco/config.yaml)")
+		return "", fmt.Errorf("tenant_id is required (set in provider block, UNCO_TENANT_ID, or %s)", defaultCLIConfigPath())
 	}
 
 	authority := "https://login.microsoftonline.com/" + tenantID

@@ -8,9 +8,9 @@ Configuration values (`api_url`, `client_id`, `tenant_id`, and optional `token`)
 
 1. Explicit provider attributes (`api_url`, `client_id`, `tenant_id`, `token`),
 2. Environment variables (`UNCO_API_URL`, `UNCO_CLIENT_ID`, `UNCO_TENANT_ID`, `UNCO_API_TOKEN`),
-3. `~/.config/unco/config.yaml` (`api.url`, `api.clientId`, `api.tenantId`).
+3. The Unco CLI `config.yaml` in the OS user config directory (`<user config dir>/unco/config.yaml`: `api.url`, `api.clientId`, `api.tenantId`).
 
-When `token` / `UNCO_API_TOKEN` is omitted, the provider acquires a bearer token from the local Unco MSAL token cache (`~/.cache/unco/cache.json`).
+When `token` / `UNCO_API_TOKEN` is omitted, the provider acquires a bearer token from the local Unco MSAL token cache in the OS user cache directory (`<user cache dir>/unco/cache.json`).
 
 ## Resources
 
